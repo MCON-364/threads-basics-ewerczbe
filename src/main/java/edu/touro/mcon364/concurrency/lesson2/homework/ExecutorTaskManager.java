@@ -59,20 +59,20 @@ public class ExecutorTaskManager {
 
     private static final int POOL_SIZE = 4;
 
-    // TODO: declare a private final ExecutorService field (fixed pool, POOL_SIZE threads)
+    // TODO: declare the thread pool — what factory method gives you a fixed-size pool?
 
-    // TODO: declare a private final AtomicInteger for ID generation, starting at 0
+    // TODO: declare the ID counter — what type guarantees uniqueness without synchronized?
 
     // List of tasks that have finished — written by worker threads, so needs protection
     private final List<Task> completedTasks = new ArrayList<>();
 
-    // TODO: declare a private final ReentrantLock to protect completedTasks
+    // TODO: declare the lock that will protect completedTasks
 
     // ── ID generation ────────────────────────────────────────────────────────
 
     /**
      * Returns a unique, auto-incremented task ID.
-     * TODO: use AtomicInteger.incrementAndGet() — do NOT use synchronized
+     * TODO: generate the next ID atomically — no synchronized keyword allowed
      */
     public int nextId() {
         // TODO: implement
@@ -89,12 +89,12 @@ public class ExecutorTaskManager {
      * @return a {@link Future<Task>} that will hold the completed task
      */
     public Future<Task> submit(String description, Priority priority) {
-        // TODO (a): int id = nextId();
+        // TODO: obtain a unique ID for this task
 
-        // TODO (b): Task task = new Task(id, description, priority);
+        // TODO: build the Task record
 
-        // TODO (c): return pool.submit(Callable) — lambda that sleeps 10 ms,
-        //           calls recordCompleted(task), and returns the task
+        // TODO: hand the task to the pool as a Callable that processes it and
+        //       returns it when done — return the Future the pool gives you back
         return null;
     }
 
@@ -103,9 +103,9 @@ public class ExecutorTaskManager {
     /**
      * Records a finished task.
      *
-     * This method is called from worker threads, so the list must be protected.
-     * TODO: acquire completedLock before adding to completedTasks, release in finally.
-     *       Add a comment explaining WHY a lock is needed here.
+     * This method is called from worker threads concurrently.
+     * TODO: protect the list so that two threads cannot corrupt it at the same time.
+     *       Add a comment explaining exactly why a lock is necessary here.
      */
     private void recordCompleted(Task task) {
         // TODO: implement
@@ -117,8 +117,8 @@ public class ExecutorTaskManager {
      * Waits for every future in {@code futures} to complete and returns the
      * resulting {@link Task} objects in submission order.
      *
-     * TODO: iterate futures, call get() on each, collect results into a list.
-     *       Wrap InterruptedException and ExecutionException in RuntimeException.
+     * TODO: retrieve each result in order and collect them into a list.
+     *       What should happen if a task threw an exception or was interrupted?
      */
     public List<Task> awaitAll(List<Future<Task>> futures) {
         // TODO: implement
@@ -130,7 +130,8 @@ public class ExecutorTaskManager {
     /**
      * Shuts down the pool and waits up to 30 seconds for all tasks to finish.
      *
-     * TODO: call pool.shutdown() then pool.awaitTermination(30, TimeUnit.SECONDS).
+     * TODO: signal the pool to stop accepting new work, then block until all
+     *       in-flight tasks have completed or the timeout expires
      */
     public void shutdown() throws InterruptedException {
         // TODO: implement
@@ -140,13 +141,14 @@ public class ExecutorTaskManager {
 
     /** Returns a snapshot of the tasks that have completed so far. */
     public List<Task> getCompletedTasks() {
-        // TODO: acquire completedLock, return List.copyOf(completedTasks), release in finally
-        return List.copyOf(completedTasks);
+        // TODO: protect the read with the same lock used in recordCompleted,
+        //       then return a defensive copy so callers cannot mutate internal state
+        return null;
     }
 
     /** Returns the most recently generated ID (useful for assertions). */
     public int getLastIssuedId() {
-        // TODO: return idCounter.get()
+        // TODO: read the current value from the ID counter
         return 0;
     }
 }

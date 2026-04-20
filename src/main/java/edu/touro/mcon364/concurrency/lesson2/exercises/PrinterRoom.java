@@ -35,7 +35,8 @@ public class PrinterRoom {
 
     public PrinterRoom(int printerCount) {
         this.printerCount = printerCount;
-        // TODO: initialise the semaphore with printerCount permits
+        // TODO: initialise the semaphore so that exactly printerCount threads
+        //       may be inside print() at the same time
         this.semaphore = null;
     }
 
@@ -46,19 +47,19 @@ public class PrinterRoom {
      * @param document the document to print
      */
     public void print(String document) throws InterruptedException {
-        // TODO: semaphore.acquire()
+        // TODO: block here until a printer permit is available
+
         try {
-            // TODO: increment activeCount and update maxObserved high-water mark:
-            //       int current = activeCount.incrementAndGet();
-            //       maxObserved.updateAndGet(prev -> Math.max(prev, current));
+            // TODO: record that one more job is now active, then update the
+            //       high-water mark if the new active count is a new maximum
 
             // Simulate printing time
             Thread.sleep(50);
 
-            // TODO: completedJobs.incrementAndGet();
+            // TODO: record that this job has finished
         } finally {
-            // TODO: activeCount.decrementAndGet();
-            // TODO: semaphore.release()
+            // TODO: signal that one more printer is free again — do this even
+            //       if an exception was thrown, and update the active count
         }
     }
 
