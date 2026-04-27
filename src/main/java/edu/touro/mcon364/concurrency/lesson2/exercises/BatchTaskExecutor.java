@@ -38,16 +38,26 @@ public class BatchTaskExecutor {
      * @param taskNames list of task identifiers to process
      */
     public void processBatch(List<String> taskNames) throws InterruptedException {
-        // TODO: create a thread pool whose size is bounded by POOL_SIZE
+        // Create a fixed thread pool
+        ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
 
         for (String name : taskNames) {
-            // TODO: hand each task to the pool — the work should:
-            //       (1) record that one more task has completed
-            //       (2) record which thread ran it (think about thread safety)
+            pool.submit(() -> {
+                // (1) increment completed count
+                completedCount.incrementAndGet();
+
+                // (2) record thread name safely
+                synchronized (workerNames) {
+                    workerNames.add(Thread.currentThread().getName());
+                }
+            });
         }
 
-        // TODO: stop the pool from accepting new work, then wait until all
-        //       in-flight tasks have finished before this method returns
+        // Stop accepting new tasks
+        pool.shutdown();
+
+        // Wait for all tasks to finish (max 10 seconds)
+        pool.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     /** Total tasks that have completed. */
